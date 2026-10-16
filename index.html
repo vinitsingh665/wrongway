@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Wrong Way — Don't Be Mad</title>
+  <meta name="description" content="A premium turn-based strategy board game. Race your piece to the other side while placing walls to block your opponent. Based on the classic game Quoridor.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Main Menu -->
+    <div id="menu-screen" class="screen active">
+      <div class="menu-bg-grid"></div>
+      <div class="menu-content">
+        <div class="menu-logo">
+          <div class="logo-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect x="2" y="4" width="44" height="40" rx="7" fill="url(#logoGrad)"/>
+              <rect x="5" y="7" width="17" height="9" rx="2.5" fill="rgba(255,255,255,0.85)"/>
+              <rect x="24" y="7" width="19" height="9" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+              <rect x="5" y="18" width="9" height="9" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+              <rect x="16" y="18" width="16" height="9" rx="2.5" fill="rgba(255,255,255,0.85)"/>
+              <rect x="34" y="18" width="9" height="9" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+              <rect x="5" y="29" width="19" height="9" rx="2.5" fill="rgba(255,255,255,0.85)"/>
+              <rect x="26" y="29" width="17" height="9" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+              <defs>
+                <linearGradient id="logoGrad" x1="2" y1="4" x2="46" y2="44">
+                  <stop offset="0%" stop-color="#7c3aed"/>
+                  <stop offset="100%" stop-color="#4f46e5"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h1 class="logo-title">Wrong Way</h1>
+          <p class="logo-subtitle">DON'T BE MAD</p>
+        </div>
+
+        <div class="menu-actions">
+          <button id="btn-quick-play" class="btn-primary" onclick="quickPlay()">
+            <span class="btn-icon">▶</span>
+            <span>Quick Play</span>
+          </button>
+          <button id="btn-vs-computer" class="btn-primary btn-ai" onclick="quickPlayAI()">
+            <span class="btn-icon">🤖</span>
+            <span>vs Computer</span>
+          </button>
+          <button id="btn-online" class="btn-primary btn-online" onclick="showMultiplayerLobby()">
+            <span class="btn-icon">🌐</span>
+            <span>Play Online (LAN)</span>
+          </button>
+          <button id="btn-custom-game" class="btn-accent" onclick="showSetup()">
+            <span class="btn-icon">⚙</span>
+            <span>Custom Game</span>
+          </button>
+          <button id="btn-how-to-play" class="btn-secondary" onclick="showHowToPlay()">
+            <span class="btn-icon">?</span>
+            <span>How to Play</span>
+          </button>
+        </div>
+
+        <div class="menu-footer">
+          <p class="footer-text">Local 2-Player • LAN Multiplayer • Turn-based Strategy</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multiplayer Lobby Screen -->
+    <div id="multiplayer-screen" class="screen">
+      <div class="screen-header">
+        <button class="btn-back" onclick="leaveMultiplayer()">← Back</button>
+        <h2 class="screen-title">Online Play</h2>
+        <div style="width:48px"></div>
+      </div>
+      <div class="lobby-content">
+        <!-- Connection Status -->
+        <div class="lobby-status" id="lobby-status">
+          <div class="status-dot disconnected" id="status-dot"></div>
+          <span id="status-text">Connecting...</span>
+        </div>
+
+        <!-- Create Room -->
+        <div class="lobby-card">
+          <div class="lobby-card-header">
+            <span class="lobby-card-icon">🏠</span>
+            <h3>Create Room</h3>
+          </div>
+          <p class="lobby-card-desc">Start a room and invite your friend to join</p>
+
+          <!-- Custom Settings for Online -->
+          <div class="online-settings" id="online-settings">
+            <!-- Players -->
+            <div class="setup-section" style="box-shadow:none; border:none; padding:10px 0; margin-bottom:0; background:transparent;">
+              <div class="setup-label">Players</div>
+              <div class="mode-cards">
+                <button class="mode-card selected" id="online-players-2" onclick="selectOnlinePlayers(2)">
+                  <div class="mode-icon">👥</div>
+                  <div class="mode-name">2 Players</div>
+                </button>
+                <button class="mode-card" id="online-players-4" onclick="selectOnlinePlayers(4)">
+                  <div class="mode-icon">👨‍👩‍👧‍👦</div>
+                  <div class="mode-name">4 Players</div>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Game Mode -->
+            <div class="setup-section" style="box-shadow:none; border:none; padding:10px 0; margin-bottom:0; background:transparent;">
+              <div class="setup-label">Game Mode</div>
+              <div class="mode-cards">
+                <button class="mode-card selected" id="online-mode-duel" onclick="selectOnlineMode('duel')">
+                  <div class="mode-icon">⚔️</div>
+                  <div class="mode-name">Duel</div>
+                </button>
+                <button class="mode-card" id="online-mode-race" onclick="selectOnlineMode('race')">
+                  <div class="mode-icon">🏁</div>
+                  <div class="mode-name">Race</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Grid Size -->
+            <div class="setup-section" style="box-shadow:none; border:none; padding:10px 0; margin-bottom:0; background:transparent;">
+              <div class="setup-label">Board Size</div>
+              <div class="size-presets" style="flex-wrap: wrap;">
+                <button class="size-chip" id="online-size-5" onclick="selectOnlineGridSize(5)">5×5</button>
+                <button class="size-chip" id="online-size-7" onclick="selectOnlineGridSize(7)">7×7</button>
+                <button class="size-chip selected" id="online-size-9" onclick="selectOnlineGridSize(9)">9×9</button>
+                <button class="size-chip" id="online-size-11" onclick="selectOnlineGridSize(11)">11×11</button>
+                <button class="size-chip" id="online-size-15" onclick="selectOnlineGridSize(15)">15×15</button>
+              </div>
+              <div class="size-hint" id="online-size-hint">Standard board</div>
+            </div>
+            
+            <!-- Wall Count -->
+            <div class="setup-section" style="box-shadow:none; border:none; padding:10px 0; background:transparent;">
+              <div class="setup-label">Walls Per Player</div>
+              <div class="wall-count-picker">
+                <button class="wall-adj-btn" onclick="adjustOnlineWalls(-1)">−</button>
+                <div class="wall-count-display">
+                  <span class="wall-count-num" id="online-wall-count-num">10</span>
+                  <span class="wall-count-unit">walls</span>
+                </div>
+                <button class="wall-adj-btn" onclick="adjustOnlineWalls(1)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <button id="btn-create-room" class="btn-primary" onclick="handleCreateRoom()" style="margin-top: 10px;">
+            <span class="btn-icon">✨</span>
+            <span>Create Room</span>
+          </button>
+        </div>
+
+        <!-- Room Created Info (hidden initially) -->
+        <div class="lobby-card room-info-card" id="room-info-card" style="display:none">
+          <div class="room-code-display">
+            <span class="room-code-label">ROOM CODE</span>
+            <div class="room-code" id="room-code-display">----</div>
+          </div>
+          <div class="share-link-row">
+            <input type="text" class="share-link-input" id="share-link-input" readonly>
+            <button class="btn-copy" id="btn-copy-link" onclick="copyShareLink()" title="Copy link">
+              <span id="copy-icon">📋</span>
+            </button>
+          </div>
+          <div class="waiting-indicator" id="waiting-indicator">
+            <div class="waiting-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <span>Waiting for opponent to join...</span>
+          </div>
+        </div>
+
+        <!-- Join Room -->
+        <div class="lobby-card">
+          <div class="lobby-card-header">
+            <span class="lobby-card-icon">🎮</span>
+            <h3>Join Room</h3>
+          </div>
+          <p class="lobby-card-desc">Enter a room code to join your friend's game</p>
+          <div class="join-row">
+            <input type="text" class="join-input" id="join-room-input" placeholder="Enter code" maxlength="4" oninput="this.value = this.value.toUpperCase()">
+            <button class="btn-primary btn-join" id="btn-join-room" onclick="handleJoinRoom()">
+              <span>Join</span>
+            </button>
+          </div>
+          <div class="join-error" id="join-error" style="display:none"></div>
+        </div>
+
+        <!-- Help -->
+        <div class="lobby-help">
+          <p>🔗 Both players must be on the <strong>same WiFi network</strong></p>
+          <p>📱 Share the room code or link with your friend</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Setup Screen -->
+    <div id="setup-screen" class="screen">
+      <div class="screen-header">
+        <button class="btn-back" onclick="showMenu()">← Back</button>
+        <h2 class="screen-title">Game Setup</h2>
+        <div style="width:48px"></div>
+      </div>
+      <div class="setup-content">
+        <!-- Opponent & Players -->
+        <div class="setup-section">
+          <div class="setup-label">Players</div>
+          <div class="mode-cards">
+            <button class="mode-card selected" id="opp-human" onclick="selectOpponent('human')">
+              <div class="mode-icon">👥</div>
+              <div class="mode-name">2 Players</div>
+              <div class="mode-desc">Local 1v1</div>
+            </button>
+            <button class="mode-card" id="opp-human-4" onclick="selectOpponent('human4')">
+              <div class="mode-icon">👨‍👩‍👧‍👦</div>
+              <div class="mode-name">4 Players</div>
+              <div class="mode-desc">Local 4-player free-for-all</div>
+            </button>
+            <button class="mode-card" id="opp-ai" onclick="selectOpponent('ai')">
+              <div class="mode-icon">🤖</div>
+              <div class="mode-name">vs Computer</div>
+              <div class="mode-desc">Challenge the AI (2P)</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Difficulty (only visible when vs Computer) -->
+        <div class="setup-section difficulty-section" id="difficulty-section" style="display:none">
+          <div class="setup-label">Difficulty</div>
+          <div class="difficulty-picker">
+            <input type="range" id="difficulty-slider" class="difficulty-slider" min="0" max="5" value="2" oninput="updateDifficulty()">
+            <div class="difficulty-labels">
+              <span>Beginner</span>
+              <span>Easy</span>
+              <span>Medium</span>
+              <span>Hard</span>
+              <span>Expert</span>
+              <span>Legendary</span>
+            </div>
+          </div>
+          <div class="difficulty-badge" id="difficulty-badge">
+            <span class="diff-icon" id="diff-icon">🌱</span>
+            <span class="diff-name" id="diff-name">Medium</span>
+            <span class="diff-desc" id="diff-desc">Balanced challenge</span>
+          </div>
+        </div>
+
+        <!-- First Move (only visible when vs Computer) -->
+        <div class="setup-section" id="first-move-section" style="display:none">
+          <div class="setup-label">First Move</div>
+          <div class="first-move-toggle">
+            <button class="fm-btn selected" id="fm-player" onclick="selectFirstMove('player')">
+              <span>🎮</span> You
+            </button>
+            <button class="fm-btn" id="fm-computer" onclick="selectFirstMove('computer')">
+              <span>🤖</span> Computer
+            </button>
+          </div>
+        </div>
+
+        <!-- Player Color -->
+        <div class="setup-section" id="player-color-section">
+          <div class="setup-label">Your Color</div>
+          <div class="first-move-toggle">
+            <button class="fm-btn selected" id="color-blue" onclick="selectPlayerColor('blue')">
+              <span style="color: var(--blue-primary)">●</span> Blue
+            </button>
+            <button class="fm-btn" id="color-red" onclick="selectPlayerColor('red')">
+              <span style="color: var(--red-primary)">●</span> Red
+            </button>
+          </div>
+        </div>
+
+        <!-- Game Mode -->
+        <div class="setup-section">
+          <div class="setup-label">Game Mode</div>
+          <div class="mode-cards">
+            <button class="mode-card selected" id="mode-duel" onclick="selectMode('duel')">
+              <div class="mode-icon">⚔️</div>
+              <div class="mode-name">Duel</div>
+              <div class="mode-desc">Face off from opposite sides</div>
+              <div class="mode-diagram duel-diagram">
+                <span class="md-piece md-red">●</span>
+                <span class="md-arrow">↕</span>
+                <span class="md-piece md-blue">●</span>
+              </div>
+            </button>
+            <button class="mode-card" id="mode-race" onclick="selectMode('race')">
+              <div class="mode-icon">🏁</div>
+              <div class="mode-name">Race</div>
+              <div class="mode-desc">Both race from bottom to top</div>
+              <div class="mode-diagram race-diagram">
+                <span class="md-goal">🏁</span>
+                <span class="md-arrow">↑↑</span>
+                <span class="md-both">● ●</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid Size -->
+        <div class="setup-section">
+          <div class="setup-label">Board Size</div>
+          <div class="wall-count-picker">
+            <button class="wall-adj-btn" onclick="adjustGridSize(-1)">−</button>
+            <div class="wall-count-display">
+              <span class="wall-count-num" id="grid-size-num">9</span>
+              <span class="wall-count-unit">× <span id="grid-size-num2">9</span></span>
+            </div>
+            <button class="wall-adj-btn" onclick="adjustGridSize(1)">+</button>
+          </div>
+          <div class="size-presets">
+            <button class="size-chip" onclick="selectGridSize(5)">5×5</button>
+            <button class="size-chip" onclick="selectGridSize(7)">7×7</button>
+            <button class="size-chip selected" onclick="selectGridSize(9)">9×9</button>
+            <button class="size-chip" onclick="selectGridSize(11)">11×11</button>
+            <button class="size-chip" onclick="selectGridSize(15)">15×15</button>
+          </div>
+          <div class="size-hint" id="size-hint">Standard board</div>
+        </div>
+
+        <!-- Wall Count -->
+        <div class="setup-section">
+          <div class="setup-label">Walls Per Player</div>
+          <div class="wall-count-picker">
+            <button class="wall-adj-btn" onclick="adjustWalls(-1)">−</button>
+            <div class="wall-count-display">
+              <span class="wall-count-num" id="wall-count-num">10</span>
+              <span class="wall-count-unit">walls</span>
+            </div>
+            <button class="wall-adj-btn" onclick="adjustWalls(1)">+</button>
+          </div>
+        </div>
+
+        <!-- Start Button -->
+        <button class="btn-primary btn-start-game" onclick="startCustomGame()">
+          <span class="btn-icon">🎮</span>
+          <span>Start Game</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- How to Play -->
+    <div id="how-to-play-screen" class="screen">
+      <div class="screen-header">
+        <button class="btn-back" onclick="showMenu()">← Back</button>
+        <h2 class="screen-title">How to Play</h2>
+        <div style="width:48px"></div>
+      </div>
+      <div class="tutorial-content">
+        <div class="tutorial-card">
+          <div class="tutorial-emoji">🎯</div>
+          <h3>Objective</h3>
+          <p>Be the first player to reach the <strong>opposite side</strong> of the board. Blue starts at the bottom and must reach the top. Red starts at the top and must reach the bottom.</p>
+        </div>
+        <div class="tutorial-card">
+          <div class="tutorial-emoji">🏃</div>
+          <h3>Moving</h3>
+          <p>On your turn, click your piece, then click an <strong>adjacent cell</strong> (up, down, left, or right) to move. You can't move diagonally or through walls.</p>
+        </div>
+        <div class="tutorial-card">
+          <div class="tutorial-emoji">🧱</div>
+          <h3>Barricades</h3>
+          <p>Instead of moving, you can <strong>place a wall</strong>. Click a horizontal (━) or vertical (┃) wall tool, then click a grid intersection to place it. Each wall blocks 2 cells.</p>
+        </div>
+        <div class="tutorial-card">
+          <div class="tutorial-emoji">⚠️</div>
+          <h3>Key Rule</h3>
+          <p>You <strong>cannot</strong> completely block a player's path to their goal. There must always be at least one route open for both players.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+      <div class="game-header">
+        <div class="game-logo-small">
+          <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
+            <rect x="2" y="4" width="44" height="40" rx="7" fill="url(#logoGrad2)"/>
+            <rect x="5" y="7" width="17" height="9" rx="2.5" fill="rgba(255,255,255,0.85)"/>
+            <rect x="24" y="7" width="19" height="9" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+            <rect x="5" y="18" width="9" height="9" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+            <rect x="16" y="18" width="16" height="9" rx="2.5" fill="rgba(255,255,255,0.85)"/>
+            <rect x="34" y="18" width="9" height="9" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+            <rect x="5" y="29" width="19" height="9" rx="2.5" fill="rgba(255,255,255,0.85)"/>
+            <rect x="26" y="29" width="17" height="9" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+            <defs>
+              <linearGradient id="logoGrad2" x1="2" y1="4" x2="46" y2="44">
+                <stop offset="0%" stop-color="#7c3aed"/>
+                <stop offset="100%" stop-color="#4f46e5"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="game-logo-text">Wrong Way</span>
+          <div class="online-badge" id="online-badge" style="display:none">
+            <span class="online-dot"></span>
+            <span>ONLINE</span>
+          </div>
+        </div>
+        <div class="header-actions" style="display: flex; gap: 12px; margin-left: auto;">
+          <button id="btn-undo" class="btn-flip-board" style="opacity: 0.4;" disabled onclick="undoMove()">
+            <span>↩️</span> Undo
+          </button>
+          <button id="btn-flip-board" class="btn-flip-board" onclick="toggleBoardFlip()">
+            <span>🔃</span> Flip Board
+          </button>
+          <button id="btn-give-up" class="btn-give-up" onclick="handleGiveUp()">
+            <span>🏳️</span> Give up
+          </button>
+        </div>
+      </div>
+
+      <!-- Player Cards -->
+      <div class="player-cards">
+        <div id="card-blue" class="player-card blue live">
+          <div class="player-piece-slot">
+            <div class="piece piece-blue small"></div>
+          </div>
+          <div class="player-info">
+            <div class="player-name">Player 1</div>
+            <div class="player-walls">
+              <span class="wall-icon">━</span>
+              <span id="walls-blue">10</span>
+            </div>
+          </div>
+        </div>
+        
+        <div id="card-green" class="player-card green" style="display:none">
+          <div class="player-piece-slot">
+            <div class="piece piece-green small"></div>
+          </div>
+          <div class="player-info">
+            <div class="player-name">Player 3</div>
+            <div class="player-walls">
+              <span class="wall-icon">━</span>
+              <span id="walls-green">5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-badge">
+          <div class="vs-dots"><i></i><i></i><i></i></div>
+          <span class="vs-text">VS</span>
+          <div class="vs-dots"><i></i><i></i><i></i></div>
+        </div>
+
+        <div id="card-red" class="player-card red">
+          <div class="player-piece-slot">
+            <div class="piece piece-red small"></div>
+          </div>
+          <div class="player-info">
+            <div class="player-name">Player 2</div>
+            <div class="player-walls">
+              <span class="wall-icon">━</span>
+              <span id="walls-red">10</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="card-yellow" class="player-card yellow" style="display:none">
+          <div class="player-piece-slot">
+            <div class="piece piece-yellow small"></div>
+          </div>
+          <div class="player-info">
+            <div class="player-name">Player 4</div>
+            <div class="player-walls">
+              <span class="wall-icon">━</span>
+              <span id="walls-yellow">5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Goal Indicator Top -->
+      <div class="goal-indicator top" id="goal-top">
+        <span class="goal-line"></span>
+        <span class="goal-arrow">▲</span>
+        <span class="goal-label">PLAYER 1</span>
+        <span class="goal-arrow">▲</span>
+        <span class="goal-line"></span>
+      </div>
+
+      <!-- Board -->
+      <div id="board-container" class="board-container">
+        <!-- Goal Indicator Left (for Yellow) -->
+        <div class="goal-indicator left" id="goal-left" style="display:none">
+          <span class="goal-arrow">▲</span>
+          <span class="goal-label">PLAYER 4</span>
+          <span class="goal-arrow">▲</span>
+        </div>
+
+        <!-- Goal Indicator Right (for Green) -->
+        <div class="goal-indicator right" id="goal-right" style="display:none">
+          <span class="goal-arrow">▲</span>
+          <span class="goal-label">PLAYER 3</span>
+          <span class="goal-arrow">▲</span>
+        </div>
+
+        <div class="board-frame">
+          <div class="board-edge top-edge"></div>
+          <div class="board-edge bottom-edge"></div>
+          <div class="board-edge left-edge"></div>
+          <div class="board-edge right-edge"></div>
+          <div class="board-stud left-stud"></div>
+          <div class="board-stud right-stud"></div>
+          <div id="board" class="board"></div>
+        </div>
+      </div>
+
+      <!-- Goal Indicator Bottom -->
+      <div class="goal-indicator bottom" id="goal-bottom">
+        <span class="goal-line"></span>
+        <span class="goal-arrow">▼</span>
+        <span class="goal-label">PLAYER 2</span>
+        <span class="goal-arrow">▼</span>
+        <span class="goal-line"></span>
+      </div>
+
+      <!-- Wall Tools -->
+      <div class="bottom-bar">
+        <div class="wall-controls">
+          <div class="wall-label">
+            <span class="wall-icon">━</span>
+            <span id="walls-current">10</span> walls left
+          </div>
+          <div class="wall-tools">
+            <button id="tool-h" class="wall-tool" title="Drag horizontal wall onto board">
+              <div class="wall-preview h-preview"></div>
+            </button>
+            <button id="tool-v" class="wall-tool" title="Drag vertical wall onto board">
+              <div class="wall-preview v-preview"></div>
+            </button>
+          </div>
+          <div class="wall-hint" id="wall-hint">Drag a wall onto the board</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="victory-screen" class="screen">
+      <div class="victory-overlay">
+        <div id="confetti-container" class="confetti-container"></div>
+        <div class="victory-card">
+          <div id="victory-trophy" class="victory-trophy">🏆</div>
+          <h2 id="victory-title" class="victory-title">Player 1 Wins!</h2>
+          <p class="victory-subtitle">Reached the other side first!</p>
+          <div class="victory-actions">
+            <button class="btn-primary" onclick="launchGame()">
+              <span class="btn-icon">🔄</span>
+              <span>Play Again</span>
+            </button>
+            <button class="btn-secondary" onclick="showMenu()">
+              <span class="btn-icon">🏠</span>
+              <span>Main Menu</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disconnect Overlay -->
+    <div id="disconnect-overlay" class="disconnect-overlay" style="display:none">
+      <div class="disconnect-card">
+        <div class="disconnect-icon">📡</div>
+        <h3>Opponent Disconnected</h3>
+        <p>Your opponent has left the game.</p>
+        <button class="btn-primary" onclick="showMenu()">
+          <span class="btn-icon">🏠</span>
+          <span>Main Menu</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="network.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
